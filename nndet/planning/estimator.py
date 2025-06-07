@@ -260,22 +260,19 @@ class MemoryEstimatorDetection(MemoryEstimator):
 
 def num_gpus():
     """
-    Number of GPUs independent of visible devices
+    Number of GPUs using torch.cuda
     """
-    return str(sp.check_output(["nvidia-smi", "-L"])).count('UUID')
+    return torch.cuda.device_count()
 
 
 def smi_memory_allocated(gpu_id: int = 0) -> int:
     """
-    Read memory consumption from nvidia smi
+    Get memory consumption using torch.cuda
     
     Returns:
         int: measured GPU memory in bytes
     """
-    reading = int(sp.check_output(
-        ['nvidia-smi', '--query-gpu=memory.used',
-         '--format=csv,nounits,noheader'], encoding='utf-8').split('\n')[gpu_id])
-    return mb2b(reading)
+    return torch.cuda.memory_reserved(device=gpu_id)
 
 
 class Tracemalloc():
